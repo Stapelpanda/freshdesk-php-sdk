@@ -248,8 +248,27 @@ class Api
                 case 'GET':
                     return json_decode($this->client->get($url, $options)->getBody(), true);
                 case 'POST':
+                    if (isset($options['json']['attachments'])) {
+                        $json = $options['json'];
+                        unset($options['json']);
+
+                        foreach ($json as $key => $value) {
+                            if ($key == 'attachments') {
+                                foreach ($value as $attachment) {
+                                    $options['multipart'][] = array_merge($attachment, ['name' => 'attachments[]']);
+                                }
+                            } else {
+                                $options['multipart'][] = [
+                                    'name' => $key,
+                                    'contents' => $value
+                                ];
+                            }
+
+                        }
+                    }
                     return json_decode($this->client->post($url, $options)->getBody(), true);
-                case 'PUT':
+                case
+                'PUT':
                     return json_decode($this->client->put($url, $options)->getBody(), true);
                 case 'DELETE':
                     return json_decode($this->client->delete($url, $options)->getBody(), true);
